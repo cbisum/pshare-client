@@ -121,6 +121,28 @@ function Home() {
 
     }
 
+    const deleteComment=(postId,commentId)=>{
+        fetch(`/deletecomment/${postId}/${commentId}`,{
+            method:'delete',
+            headers:{
+                "Authorization":"Bearer "+localStorage.getItem('jwt')
+            }
+        })
+        .then(res=>res.json())
+        .then(result=>{
+            let newData = data.map(item=>{
+                if(item._id === result._id){
+                    return result
+                }else {
+                    return item
+                }
+            })
+            setData(newData)
+        }).catch(error=>{
+            console.log(error)
+        })
+    }
+
   return (
       <div className='home'>
           {
@@ -132,7 +154,7 @@ function Home() {
                           {item.postedBy._id==state._id&&<i className="material-icons" style={{float:"right"}}
                           onClick={() =>
                             {  deletePost(item._id)
-                            console.log(typeof(item._id))}
+                           }
                           } 
                           >delete
                           </i>}</h5>
@@ -150,13 +172,21 @@ function Home() {
                               
                              
                               <h6>{item.likes.length==0?"Be The First Person to like this picture":item.likes.length+` Likes`} </h6>
-                              <h6>{item.title}</h6>
-                              <p>{item.body}</p>
+                              <h6> {item.title}</h6>
+                              <p><span style={{fontWeight:'600',fontSize:'15px'}}> {item.postedBy.name} </span> {item.body}  </p>
                               {
                                  item.comments.map(record=>{
+                                     console.log(record)
                                      return (
-                                        <h6 key={item.postId}>
-                                     <span style={{fontWeight:"500"}}>{record.postedBy.name}</span> {record.text}</h6>
+                                    <h6 key={item.postId}>
+                                     <span style={{fontWeight:"500"}}>{record.postedBy.name}</span>
+                                      {record.text} 
+                                        
+                                      {
+                                          record.postedBy._id===state._id&&<i className="material-icons right" onClick={()=>deleteComment(item._id,record._id)}>delete</i>
+                                      }      
+                                      
+                                    </h6>
                                      )
                                  }) 
                               }
